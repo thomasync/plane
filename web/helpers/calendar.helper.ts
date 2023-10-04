@@ -1,3 +1,5 @@
+import { localized } from "./localization.helper";
+
 export const startOfWeek = (date: Date) => {
   const startOfMonthDate = new Date(date.getFullYear(), date.getMonth(), 1);
   const dayOfWeek = startOfMonthDate.getDay() % 7;
@@ -82,20 +84,28 @@ export const formatDate = (date: Date, format: string): string => {
   const hours = date.getHours();
   const minutes = date.getMinutes();
   const seconds = date.getSeconds();
-  const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const daysOfWeek = [
+    localized("Sunday"),
+    localized("Monday"),
+    localized("Tuesday"),
+    localized("Wednesday"),
+    localized("Thursday"),
+    localized("Friday"),
+    localized("Saturday"),
+  ];
   const monthsOfYear = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    localized("January"),
+    localized("February"),
+    localized("March"),
+    localized("April"),
+    localized("May"),
+    localized("June"),
+    localized("July"),
+    localized("August"),
+    localized("September"),
+    localized("October"),
+    localized("November"),
+    localized("December"),
   ];
 
   const formattedDate = format
@@ -110,18 +120,6 @@ export const formatDate = (date: Date, format: string): string => {
     .replace("ss", seconds.toString().padStart(2, "0"));
 
   return formattedDate;
-};
-
-export const subtractMonths = (date: Date, numMonths: number) => {
-  const result = new Date(date);
-  result.setMonth(result.getMonth() - numMonths);
-  return result;
-};
-
-export const addMonths = (date: Date, numMonths: number) => {
-  const result = new Date(date);
-  result.setMonth(result.getMonth() + numMonths);
-  return result;
 };
 
 export const updateDateWithYear = (yearString: string, date: Date) => {

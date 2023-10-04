@@ -2,13 +2,33 @@ import { useRouter } from "next/router";
 
 import useSWR from "swr";
 
+// hook
+import useEstimateOption from "hooks/use-estimate-option";
 // services
 import issuesService from "services/issues.service";
 // icons
 import { Icon, Tooltip } from "components/ui";
-import { CopyPlus } from "lucide-react";
-import { Squares2X2Icon } from "@heroicons/react/24/outline";
-import { BlockedIcon, BlockerIcon, RelatedIcon } from "components/icons";
+import {
+  TagIcon,
+  CopyPlus,
+  Calendar,
+  Link2Icon,
+  RocketIcon,
+  Users2Icon,
+  ArchiveIcon,
+  PaperclipIcon,
+  ContrastIcon,
+  TriangleIcon,
+  LayoutGridIcon,
+  SignalMediumIcon,
+  MessageSquareIcon,
+} from "lucide-react";
+import {
+  BlockedIcon,
+  BlockerIcon,
+  RelatedIcon,
+  StackedLayersHorizontalIcon,
+} from "components/icons";
 // helpers
 import { renderShortDateWithYearFormat } from "helpers/date-time.helper";
 import { capitalizeFirstLetter } from "helpers/string.helper";
@@ -16,6 +36,7 @@ import { capitalizeFirstLetter } from "helpers/string.helper";
 import { IIssueActivity } from "types";
 // fetch-keys
 import { WORKSPACE_LABELS } from "constants/fetch-keys";
+import { localized } from "helpers/localization.helper";
 
 const IssueLink = ({ activity }: { activity: IIssueActivity }) => {
   const router = useRouter();
@@ -24,7 +45,9 @@ const IssueLink = ({ activity }: { activity: IIssueActivity }) => {
   return (
     <Tooltip
       tooltipContent={
-        activity.issue_detail ? activity.issue_detail.name : "This issue has been deleted"
+        activity.issue_detail
+          ? activity.issue_detail.name
+          : localized("This issue has been deleted")
       }
     >
       <a
@@ -35,8 +58,8 @@ const IssueLink = ({ activity }: { activity: IIssueActivity }) => {
       >
         {activity.issue_detail
           ? `${activity.project_detail.identifier}-${activity.issue_detail.sequence_id}`
-          : "Issue"}
-        <Icon iconName="launch" className="!text-xs" />
+          : localized("Issue")}
+        <RocketIcon size={12} color="#6b7280" />
       </a>
     </Tooltip>
   );
@@ -77,6 +100,18 @@ const LabelPill = ({ labelId }: { labelId: string }) => {
     />
   );
 };
+const EstimatePoint = ({ point }: { point: string }) => {
+  const { estimateValue, isEstimateActive } = useEstimateOption(Number(point));
+  const currentPoint = Number(point) + 1;
+
+  return (
+    <span className="font-medium text-custom-text-100">
+      {isEstimateActive
+        ? estimateValue
+        : `${currentPoint} ${currentPoint > 1 ? localized("points") : localized("point")}`}
+    </span>
+  );
+};
 
 const activityDetails: {
   [key: string]: {
@@ -93,11 +128,11 @@ const activityDetails: {
       if (activity.old_value === "")
         return (
           <>
-            added a new assignee <UserLink activity={activity} />
+            {localized("added a new assignee")} <UserLink activity={activity} />
             {showIssue && (
               <>
                 {" "}
-                to <IssueLink activity={activity} />
+                {localized("to")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -106,45 +141,45 @@ const activityDetails: {
       else
         return (
           <>
-            removed the assignee <UserLink activity={activity} />
+            {localized("removed the assignee")} <UserLink activity={activity} />
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="group" className="!text-2xl" aria-hidden="true" />,
+    icon: <Users2Icon size={12} color="#6b7280" aria-hidden="true" />,
   },
   archived_at: {
     message: (activity) => {
-      if (activity.new_value === "restore") return "restored the issue.";
-      else return "archived the issue.";
+      if (activity.new_value === "restore") return localized("restored the issue.");
+      else return localized("archived the issue.");
     },
-    icon: <Icon iconName="archive" className="!text-2xl" aria-hidden="true" />,
+    icon: <ArchiveIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   attachment: {
     message: (activity, showIssue) => {
       if (activity.verb === "created")
         return (
           <>
-            uploaded a new{" "}
+            {localized("uploaded a new")}{" "}
             <a
               href={`${activity.new_value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
-              attachment
-              <Icon iconName="launch" className="!text-xs" />
+              {localized("attachment")}
+              <RocketIcon size={12} color="#6b7280" />
             </a>
             {showIssue && (
               <>
                 {" "}
-                to <IssueLink activity={activity} />
+                {localized("to")} <IssueLink activity={activity} />
               </>
             )}
           </>
@@ -152,32 +187,32 @@ const activityDetails: {
       else
         return (
           <>
-            removed an attachment
+            {localized("removed an attachment")}
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="attach_file" className="!text-2xl" aria-hidden="true" />,
+    icon: <PaperclipIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   blocking: {
     message: (activity) => {
       if (activity.old_value === "")
         return (
           <>
-            marked this issue is blocking issue{" "}
+            {localized("marked this issue is blocking issue")}{" "}
             <span className="font-medium text-custom-text-100">{activity.new_value}</span>.
           </>
         );
       else
         return (
           <>
-            removed the blocking issue{" "}
+            {localized("removed the blocking issue")}{" "}
             <span className="font-medium text-custom-text-100">{activity.old_value}</span>.
           </>
         );
@@ -189,14 +224,14 @@ const activityDetails: {
       if (activity.old_value === "")
         return (
           <>
-            marked this issue is being blocked by{" "}
+            {localized("marked this issue is being blocked by")}{" "}
             <span className="font-medium text-custom-text-100">{activity.new_value}</span>.
           </>
         );
       else
         return (
           <>
-            removed this issue being blocked by issue{" "}
+            {localized("removed this issue being blocked by issue")}{" "}
             <span className="font-medium text-custom-text-100">{activity.old_value}</span>.
           </>
         );
@@ -208,14 +243,14 @@ const activityDetails: {
       if (activity.old_value === "")
         return (
           <>
-            marked this issue as duplicate of{" "}
+            {localized("marked this issue as duplicate of")}{" "}
             <span className="font-medium text-custom-text-100">{activity.new_value}</span>.
           </>
         );
       else
         return (
           <>
-            removed this issue as a duplicate of{" "}
+            {localized("removed this issue as a duplicate of")}{" "}
             <span className="font-medium text-custom-text-100">{activity.old_value}</span>.
           </>
         );
@@ -227,14 +262,14 @@ const activityDetails: {
       if (activity.old_value === "")
         return (
           <>
-            marked that this issue relates to{" "}
+            {localized("marked that this issue relates to")}{" "}
             <span className="font-medium text-custom-text-100">{activity.new_value}</span>.
           </>
         );
       else
         return (
           <>
-            removed the relation from{" "}
+            {localized("removed the relation from")}{" "}
             <span className="font-medium text-custom-text-100">{activity.old_value}</span>.
           </>
         );
@@ -246,7 +281,7 @@ const activityDetails: {
       if (activity.verb === "created")
         return (
           <>
-            added this issue to the cycle{" "}
+            {localized("added this issue to the cycle")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.new_identifier}`}
               target="_blank"
@@ -254,14 +289,14 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.new_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
       else if (activity.verb === "updated")
         return (
           <>
-            set the cycle to{" "}
+            {localized("set the cycle to")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.new_identifier}`}
               target="_blank"
@@ -269,14 +304,14 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.new_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
       else
         return (
           <>
-            removed the issue from the cycle{" "}
+            {localized("removed the issue from the cycle")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/cycles/${activity.old_identifier}`}
               target="_blank"
@@ -284,38 +319,38 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.old_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
     },
-    icon: <Icon iconName="contrast" className="!text-2xl" aria-hidden="true" />,
+    icon: <ContrastIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   description: {
     message: (activity, showIssue) => (
       <>
-        updated the description
+        {localized("updated the description")}
         {showIssue && (
           <>
             {" "}
-            of <IssueLink activity={activity} />
+            {localized("of")} <IssueLink activity={activity} />
           </>
         )}
         .
       </>
     ),
-    icon: <Icon iconName="chat" className="!text-2xl" aria-hidden="true" />,
+    icon: <MessageSquareIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   estimate_point: {
     message: (activity, showIssue) => {
       if (!activity.new_value)
         return (
           <>
-            removed the estimate point
+            {localized("removed the estimate point")}
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -324,33 +359,32 @@ const activityDetails: {
       else
         return (
           <>
-            set the estimate point to{" "}
-            <span className="font-medium text-custom-text-100">{activity.new_value}</span>
+            {localized("set the estimate point to")} <EstimatePoint point={activity.new_value} />
             {showIssue && (
               <>
                 {" "}
-                for <IssueLink activity={activity} />
+                {localized("for")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="change_history" className="!text-2xl" aria-hidden="true" />,
+    icon: <TriangleIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   issue: {
     message: (activity) => {
-      if (activity.verb === "created") return "created the issue.";
-      else return "deleted an issue.";
+      if (activity.verb === "created") return localized("created the issue.");
+      else return localized("deleted an issue.");
     },
-    icon: <Icon iconName="stack" className="!text-2xl" aria-hidden="true" />,
+    icon: <StackedLayersHorizontalIcon width={12} height={12} color="#6b7280" aria-hidden="true" />,
   },
   labels: {
     message: (activity, showIssue) => {
       if (activity.old_value === "")
         return (
           <>
-            added a new label{" "}
+            {localized("added a new label")}{" "}
             <span className="inline-flex items-center gap-2 rounded-full border border-custom-border-300 px-2 py-0.5 text-xs">
               <LabelPill labelId={activity.new_identifier ?? ""} />
               <span className="font-medium text-custom-text-100">{activity.new_value}</span>
@@ -358,7 +392,7 @@ const activityDetails: {
             {showIssue && (
               <>
                 {" "}
-                to <IssueLink activity={activity} />
+                {localized("to")} <IssueLink activity={activity} />
               </>
             )}
           </>
@@ -366,7 +400,7 @@ const activityDetails: {
       else
         return (
           <>
-            removed the label{" "}
+            {localized("removed the label")}{" "}
             <span className="inline-flex items-center gap-3 rounded-full border border-custom-border-300 px-2 py-0.5 text-xs">
               <LabelPill labelId={activity.old_identifier ?? ""} />
               <span className="font-medium text-custom-text-100">{activity.old_value}</span>
@@ -374,33 +408,33 @@ const activityDetails: {
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
           </>
         );
     },
-    icon: <Icon iconName="sell" className="!text-2xl" aria-hidden="true" />,
+    icon: <TagIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   link: {
     message: (activity, showIssue) => {
       if (activity.verb === "created")
         return (
           <>
-            added this{" "}
+            {localized("added this")}{" "}
             <a
               href={`${activity.new_value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
-              link
-              <Icon iconName="launch" className="!text-xs" />
+              {localized("link")}
+              <RocketIcon size={12} color="#6b7280" />
             </a>
             {showIssue && (
               <>
                 {" "}
-                to <IssueLink activity={activity} />
+                {localized("to")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -409,20 +443,20 @@ const activityDetails: {
       else if (activity.verb === "updated")
         return (
           <>
-            updated the{" "}
+            {localized("updated the")}{" "}
             <a
               href={`${activity.old_value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
-              link
-              <Icon iconName="launch" className="!text-xs" />
+              {localized("link")}
+              <RocketIcon size={12} color="#6b7280" />
             </a>
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -431,34 +465,34 @@ const activityDetails: {
       else
         return (
           <>
-            removed this{" "}
+            {localized("removed this")}{" "}
             <a
               href={`${activity.old_value}`}
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
-              link
-              <Icon iconName="launch" className="!text-xs" />
+              {localized("link")}
+              <RocketIcon size={12} color="#6b7280" />
             </a>
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="link" className="!text-2xl" aria-hidden="true" />,
+    icon: <Link2Icon size={12} color="#6b7280" aria-hidden="true" />,
   },
   modules: {
     message: (activity, showIssue, workspaceSlug) => {
       if (activity.verb === "created")
         return (
           <>
-            added this issue to the module{" "}
+            {localized("added this issue to the module")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.new_identifier}`}
               target="_blank"
@@ -466,14 +500,14 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.new_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
       else if (activity.verb === "updated")
         return (
           <>
-            set the module to{" "}
+            {localized("set the module to")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.new_identifier}`}
               target="_blank"
@@ -481,14 +515,14 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.new_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
       else
         return (
           <>
-            removed the issue from the module{" "}
+            {localized("removed the issue from the module")}{" "}
             <a
               href={`/${workspaceSlug}/projects/${activity.project}/modules/${activity.old_identifier}`}
               target="_blank"
@@ -496,39 +530,39 @@ const activityDetails: {
               className="font-medium text-custom-text-100 inline-flex items-center gap-1 hover:underline"
             >
               {activity.old_value}
-              <Icon iconName="launch" className="!text-xs" />
+              <RocketIcon size={12} color="#6b7280" />
             </a>
           </>
         );
     },
-    icon: <Icon iconName="dataset" className="!text-2xl" aria-hidden="true" />,
+    icon: <Icon iconName="dataset" className="!text-xs !text-[#6b7280]" aria-hidden="true" />,
   },
   name: {
     message: (activity, showIssue) => (
       <>
-        set the name to {activity.new_value}
+        {localized("set the name to")} {activity.new_value}
         {showIssue && (
           <>
             {" "}
-            of <IssueLink activity={activity} />
+            {localized("of")} <IssueLink activity={activity} />
           </>
         )}
         .
       </>
     ),
-    icon: <Icon iconName="chat" className="!text-2xl" aria-hidden="true" />,
+    icon: <MessageSquareIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   parent: {
     message: (activity, showIssue) => {
       if (!activity.new_value)
         return (
           <>
-            removed the parent{" "}
+            {localized("removed the parent")}{" "}
             <span className="font-medium text-custom-text-100">{activity.old_value}</span>
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -537,48 +571,54 @@ const activityDetails: {
       else
         return (
           <>
-            set the parent to{" "}
+            {localized("set the parent to")}{" "}
             <span className="font-medium text-custom-text-100">{activity.new_value}</span>
             {showIssue && (
               <>
                 {" "}
-                for <IssueLink activity={activity} />
+                {localized("for")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="supervised_user_circle" className="!text-2xl" aria-hidden="true" />,
+    icon: (
+      <Icon
+        iconName="supervised_user_circle"
+        className="!text-xs !text-[#6b7280]"
+        aria-hidden="true"
+      />
+    ),
   },
   priority: {
     message: (activity, showIssue) => (
       <>
-        set the priority to{" "}
+        {localized("set the priority to")}{" "}
         <span className="font-medium text-custom-text-100">
-          {activity.new_value ? capitalizeFirstLetter(activity.new_value) : "None"}
+          {activity.new_value ? capitalizeFirstLetter(activity.new_value) : localized("None")}
         </span>
         {showIssue && (
           <>
             {" "}
-            for <IssueLink activity={activity} />
+            {localized("for")} <IssueLink activity={activity} />
           </>
         )}
         .
       </>
     ),
-    icon: <Icon iconName="signal_cellular_alt" className="!text-2xl" aria-hidden="true" />,
+    icon: <SignalMediumIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   start_date: {
     message: (activity, showIssue) => {
       if (!activity.new_value)
         return (
           <>
-            removed the start date
+            {localized("removed the start date")}
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -587,48 +627,48 @@ const activityDetails: {
       else
         return (
           <>
-            set the start date to{" "}
+            {localized("set the start date to")}{" "}
             <span className="font-medium text-custom-text-100">
               {renderShortDateWithYearFormat(activity.new_value)}
             </span>
             {showIssue && (
               <>
                 {" "}
-                for <IssueLink activity={activity} />
+                {localized("for")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="calendar_today" className="!text-2xl" aria-hidden="true" />,
+    icon: <Calendar size={12} color="#6b7280" aria-hidden="true" />,
   },
   state: {
     message: (activity, showIssue) => (
       <>
-        set the state to{" "}
+        {localized("set the state to")}{" "}
         <span className="font-medium text-custom-text-100">{activity.new_value}</span>
         {showIssue && (
           <>
             {" "}
-            for <IssueLink activity={activity} />
+            {localized("for")} <IssueLink activity={activity} />
           </>
         )}
         .
       </>
     ),
-    icon: <Squares2X2Icon className="h-6 w-6 text-custom-sidebar-200" aria-hidden="true" />,
+    icon: <LayoutGridIcon size={12} color="#6b7280" aria-hidden="true" />,
   },
   target_date: {
     message: (activity, showIssue) => {
       if (!activity.new_value)
         return (
           <>
-            removed the due date
+            {localized("removed the due date")}
             {showIssue && (
               <>
                 {" "}
-                from <IssueLink activity={activity} />
+                {localized("from")} <IssueLink activity={activity} />
               </>
             )}
             .
@@ -637,21 +677,21 @@ const activityDetails: {
       else
         return (
           <>
-            set the due date to{" "}
+            {localized("set the due date to")}{" "}
             <span className="font-medium text-custom-text-100">
               {renderShortDateWithYearFormat(activity.new_value)}
             </span>
             {showIssue && (
               <>
                 {" "}
-                for <IssueLink activity={activity} />
+                {localized("for")} <IssueLink activity={activity} />
               </>
             )}
             .
           </>
         );
     },
-    icon: <Icon iconName="calendar_today" className="!text-2xl" aria-hidden="true" />,
+    icon: <Calendar size={12} color="#6b7280" aria-hidden="true" />,
   },
 };
 

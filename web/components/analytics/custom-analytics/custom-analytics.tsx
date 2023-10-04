@@ -21,6 +21,9 @@ import { convertResponseToBarGraphData } from "helpers/analytics.helper";
 import { IAnalyticsParams, IAnalyticsResponse, ICurrentUserResponse } from "types";
 // fetch-keys
 import { ANALYTICS } from "constants/fetch-keys";
+// mobx
+import { RootStore } from "store/root";
+import { useMobxStore } from "lib/mobx/store-provider";
 
 type Props = {
   analytics: IAnalyticsResponse | undefined;
@@ -41,6 +44,7 @@ export const CustomAnalytics: React.FC<Props> = ({
   fullScreen,
   user,
 }) => {
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug, projectId } = router.query;
 
@@ -87,7 +91,11 @@ export const CustomAnalytics: React.FC<Props> = ({
             ) : (
               <div className="grid h-full place-items-center p-5">
                 <div className="space-y-4 text-custom-text-200">
-                  <p className="text-sm">No matching issues found. Try changing the parameters.</p>
+                  <p className="text-sm">
+                    {store.locale.localized(
+                      "No matching issues found. Try changing the parameters."
+                    )}
+                  </p>
                 </div>
               </div>
             )
@@ -105,7 +113,9 @@ export const CustomAnalytics: React.FC<Props> = ({
         ) : (
           <div className="grid h-full place-items-center p-5">
             <div className="space-y-4 text-custom-text-200">
-              <p className="text-sm">There was some error in fetching the data.</p>
+              <p className="text-sm">
+                {store.locale.localized("There was some error in fetching the data.")}
+              </p>
               <div className="flex items-center justify-center gap-2">
                 <PrimaryButton
                   onClick={() => {
@@ -114,7 +124,7 @@ export const CustomAnalytics: React.FC<Props> = ({
                     mutate(ANALYTICS(workspaceSlug.toString(), params));
                   }}
                 >
-                  Refresh
+                  {store.locale.localized("Refresh")}
                 </PrimaryButton>
               </div>
             </div>

@@ -31,12 +31,17 @@ import { truncateText } from "helpers/string.helper";
 import type { NextPage } from "next";
 // fetch-keys
 import { STATES_LIST } from "constants/fetch-keys";
+// mobx
+import { useMobxStore } from "lib/mobx/store-provider";
+import { RootStore } from "store/root";
+import { STATE_GROUP_LABEL } from "constants/state";
 
 const StatesSettings: NextPage = () => {
   const [activeGroup, setActiveGroup] = useState<StateGroup>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectDeleteState, setSelectDeleteState] = useState<string | null>(null);
 
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug, projectId } = router.query;
 
@@ -65,11 +70,14 @@ const StatesSettings: NextPage = () => {
         breadcrumbs={
           <Breadcrumbs>
             <BreadcrumbItem
-              title={`${truncateText(projectDetails?.name ?? "Project", 32)}`}
+              title={`${truncateText(
+                projectDetails?.name ?? store.locale.localized("Project"),
+                32
+              )}`}
               link={`/${workspaceSlug}/projects/${projectDetails?.id}/issues`}
               linkTruncate
             />
-            <BreadcrumbItem title="States Settings" unshrinkTitle />
+            <BreadcrumbItem title={store.locale.localized("States Settings")} unshrinkTitle />
           </Breadcrumbs>
         }
       >
@@ -79,7 +87,7 @@ const StatesSettings: NextPage = () => {
           </div>
           <div className="pr-9 py-8 gap-10 w-full overflow-y-auto">
             <div className="flex items-center py-3.5 border-b border-custom-border-200">
-              <h3 className="text-xl font-medium">States</h3>
+              <h3 className="text-xl font-medium">{store.locale.localized("States")}</h3>
             </div>
             <div className="space-y-8 py-6">
               {states && projectDetails && orderedStateGroups ? (
@@ -89,7 +97,7 @@ const StatesSettings: NextPage = () => {
                       <div key={key} className="flex flex-col gap-2">
                         <div className="flex w-full justify-between">
                           <h4 className="text-base font-medium text-custom-text-200 capitalize">
-                            {key}
+                            {STATE_GROUP_LABEL[key] ?? key}
                           </h4>
                           <button
                             type="button"

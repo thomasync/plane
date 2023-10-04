@@ -15,35 +15,40 @@ import {
 } from "@mui/icons-material";
 // mobx store
 import { useMobxStore } from "lib/mobx/store-provider";
-
-const workspaceLinks = (workspaceSlug: string) => [
-  {
-    Icon: GridViewOutlined,
-    name: "Dashboard",
-    href: `/${workspaceSlug}`,
-  },
-  {
-    Icon: BarChartRounded,
-    name: "Analytics",
-    href: `/${workspaceSlug}/analytics`,
-  },
-  {
-    Icon: WorkOutlineOutlined,
-    name: "Projects",
-    href: `/${workspaceSlug}/projects`,
-  },
-  {
-    Icon: TaskAltOutlined,
-    name: "My Issues",
-    href: `/${workspaceSlug}/me/my-issues`,
-  },
-];
+import { RootStore } from "store/root";
 
 export const WorkspaceSidebarMenu = () => {
-  const store: any = useMobxStore();
+  const store: RootStore = useMobxStore();
 
   const router = useRouter();
   const { workspaceSlug } = router.query;
+
+  const workspaceLinks = (workspaceSlug: string) => [
+    {
+      Icon: GridViewOutlined,
+      name: store.locale.localized("Dashboard"),
+      key: "dashboard",
+      href: `/${workspaceSlug}`,
+    },
+    {
+      Icon: BarChartRounded,
+      name: store.locale.localized("Analytics"),
+      key: "analytics",
+      href: `/${workspaceSlug}/analytics`,
+    },
+    {
+      Icon: WorkOutlineOutlined,
+      name: store.locale.localized("Projects"),
+      key: "projects",
+      href: `/${workspaceSlug}/projects`,
+    },
+    {
+      Icon: TaskAltOutlined,
+      name: store.locale.localized("All Issues"),
+      key: "all-issues",
+      href: `/${workspaceSlug}/workspace-views/all-issues`,
+    },
+  ];
 
   const { collapsed: sidebarCollapse } = useTheme();
 
@@ -51,9 +56,7 @@ export const WorkspaceSidebarMenu = () => {
     <div className="w-full cursor-pointer space-y-1 p-4">
       {workspaceLinks(workspaceSlug as string).map((link, index) => {
         const isActive =
-          link.name === "Settings"
-            ? router.asPath.includes(link.href)
-            : router.asPath === link.href;
+          link.key === "settings" ? router.asPath.includes(link.href) : router.asPath === link.href;
 
         return (
           <Link key={index} href={link.href}>
@@ -70,6 +73,7 @@ export const WorkspaceSidebarMenu = () => {
                       ? "bg-custom-primary-100/10 text-custom-primary-100"
                       : "text-custom-sidebar-text-200 hover:bg-custom-sidebar-background-80 focus:bg-custom-sidebar-background-80"
                   } ${store?.theme?.sidebarCollapsed ? "justify-center" : ""}`}
+                  suppressHydrationWarning
                 >
                   {<link.Icon fontSize="small" />}
                   {!store?.theme?.sidebarCollapsed && link.name}

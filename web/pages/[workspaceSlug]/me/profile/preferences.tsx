@@ -15,14 +15,13 @@ import { observer } from "mobx-react-lite";
 // mobx store
 import { useMobxStore } from "lib/mobx/store-provider";
 import { SettingsSidebar } from "components/project";
+import { LocaleSwitch } from "components/core/localization";
+import { localized } from "../../../../helpers/localization.helper";
 
 const ProfilePreferences = observer(() => {
   const { user: myProfile } = useUserAuth();
 
   const store: any = useMobxStore();
-
-  // console.log("store", store?.theme?.theme);
-  // console.log("theme", theme);
 
   const [customThemeSelectorOptions, setCustomThemeSelectorOptions] = useState(false);
 
@@ -54,7 +53,7 @@ const ProfilePreferences = observer(() => {
     <WorkspaceAuthorizationLayout
       breadcrumbs={
         <Breadcrumbs>
-          <BreadcrumbItem title="My Profile Preferences" />
+          <BreadcrumbItem title={store.locale.localized("My Profile Preferences")} />
         </Breadcrumbs>
       }
     >
@@ -66,13 +65,15 @@ const ProfilePreferences = observer(() => {
 
           <div className="pr-9 py-8 w-full overflow-y-auto">
             <div className="flex items-center py-3.5 border-b border-custom-border-200">
-              <h3 className="text-xl font-medium">Preferences</h3>
+              <h3 className="text-xl font-medium">{store.locale.localized("Preferences")}</h3>
             </div>
             <div className="grid grid-cols-12 gap-4 sm:gap-16 py-6">
               <div className="col-span-12 sm:col-span-6">
-                <h4 className="text-lg font-semibold text-custom-text-100">Theme</h4>
+                <h4 className="text-lg font-semibold text-custom-text-100">
+                  {store.locale.localized("Theme")}
+                </h4>
                 <p className="text-sm text-custom-text-200">
-                  Select or customize your interface color scheme.
+                  {store.locale.localized("Select or customize your interface color scheme.")}
                 </p>
               </div>
               <div className="col-span-12 sm:col-span-6">
@@ -84,6 +85,19 @@ const ProfilePreferences = observer(() => {
               </div>
             </div>
             {customThemeSelectorOptions && <CustomThemeSelector preLoadedData={preLoadedData} />}
+            <div className="grid grid-cols-12 gap-4 sm:gap-16 py-6">
+              <div className="col-span-12 sm:col-span-6">
+                <h4 className="text-lg font-semibold text-custom-text-100">
+                  {store.locale.localized("Language")}
+                </h4>
+                <p className="text-sm text-custom-text-200">
+                  {store.locale.localized("Change your language preference for the interface.")}
+                </p>
+              </div>
+              <div className="col-span-12 sm:col-span-6">
+                <LocaleSwitch />
+              </div>
+            </div>
           </div>
         </div>
       ) : (
