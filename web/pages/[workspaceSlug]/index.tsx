@@ -36,8 +36,12 @@ import { ICurrentUserResponse } from "types";
 import type { NextPage } from "next";
 // fetch-keys
 import { CURRENT_USER, USER_WORKSPACE_DASHBOARD } from "constants/fetch-keys";
+// mbx
+import { RootStore } from "store/root";
+import { useMobxStore } from "lib/mobx/store-provider";
 
 const Greeting = ({ user }: { user: ICurrentUserResponse | undefined }) => {
+  const store: RootStore = useMobxStore();
   const currentTime = new Date();
 
   const hour = new Intl.DateTimeFormat("en-US", {
@@ -45,32 +49,39 @@ const Greeting = ({ user }: { user: ICurrentUserResponse | undefined }) => {
     hour: "numeric",
   }).format(currentTime);
 
-  const date = new Intl.DateTimeFormat("en-US", {
+  const date = store.locale.formatDate(currentTime, {
     month: "short",
     day: "numeric",
-  }).format(currentTime);
+  });
 
-  const weekDay = new Intl.DateTimeFormat("en-US", {
+  const weekDay = store.locale.formatDate(currentTime, {
     weekday: "long",
-  }).format(currentTime);
+  });
 
-  const timeString = new Intl.DateTimeFormat("en-US", {
+  const timeString = store.locale.formatDate(currentTime, {
     timeZone: user?.user_timezone,
-    hour12: false, // Use 24-hour format
+    hour12: false,
     hour: "2-digit",
     minute: "2-digit",
-  }).format(currentTime);
+  });
+
+  const dayState =
+    parseInt(hour, 10) < 12 ? "morning" : parseInt(hour, 10) < 18 ? "afternoon" : "evening";
 
   const greeting =
-    parseInt(hour, 10) < 12 ? "morning" : parseInt(hour, 10) < 18 ? "afternoon" : "evening";
+    dayState === "morning"
+      ? store.locale.localized("Good morning")
+      : dayState === "afternoon"
+      ? store.locale.localized("Good afternoon")
+      : store.locale.localized("Good evening");
 
   return (
     <div>
       <h3 className="text-2xl font-semibold">
-        Good {greeting}, {user?.first_name} {user?.last_name}
+        {greeting}, {user?.first_name} {user?.last_name}
       </h3>
       <h6 className="text-custom-text-400 font-medium flex items-center gap-2">
-        <div>{greeting === "morning" ? "🌤️" : greeting === "afternoon" ? "🌥️" : "🌙️"}</div>
+        <div>{dayState === "morning" ? "🌤️" : dayState === "afternoon" ? "🌥️" : "🌙️"}</div>
         <div>
           {weekDay}, {date} {timeString}
         </div>
@@ -83,6 +94,7 @@ const WorkspacePage: NextPage = () => {
   const [month, setMonth] = useState(new Date().getMonth() + 1);
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] = useState(false);
 
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug } = router.query;
 
@@ -105,9 +117,9 @@ const WorkspacePage: NextPage = () => {
   return (
     <WorkspaceAuthorizationLayout
       left={
-        <div className="flex items-center gap-2 pl-3">
+        <div className="flex items-center gap-2 pl-3" suppressHydrationWarning>
           <GridViewOutlined fontSize="small" />
-          Dashboard
+          {store.locale.localized("Dashboard")}
         </div>
       }
       right={
@@ -117,7 +129,7 @@ const WorkspacePage: NextPage = () => {
             className="flex items-center gap-1.5 bg-custom-background-80 text-xs font-medium py-1.5 px-3 rounded"
           >
             <BoltOutlined fontSize="small" className="-my-1" />
-            What{"'"}s New?
+            {store.locale.localized("What's New?")}
           </button>
           <Link href="https://github.com/makeplane/plane" target="_blank" rel="noopener noreferrer">
             <a className="flex items-center gap-1.5 bg-custom-background-80 text-xs font-medium py-1.5 px-3 rounded">
@@ -127,7 +139,7 @@ const WorkspacePage: NextPage = () => {
                 width={16}
                 alt="GitHub Logo"
               />
-              Star us on GitHub
+              {store.locale.localized("Star us on GitHub")}
             </a>
           </Link>
         </div>
@@ -182,9 +194,13 @@ const WorkspacePage: NextPage = () => {
           ) : (
             <div className="bg-custom-primary-100/5 flex justify-between gap-5 md:gap-8">
               <div className="p-5 md:p-8 pr-0">
-                <h5 className="text-xl font-semibold">Create a project</h5>
+                <h5 className="text-xl font-semibold">
+                  {store.locale.localized("Create a project")}
+                </h5>
                 <p className="mt-2 mb-5">
-                  Manage your projects by creating issues, cycles, modules, views and pages.
+                  {store.locale.localized(
+                    "Manage your projects by creating issues, cycles, modules, views and pages."
+                  )}
                 </p>
                 <PrimaryButton
                   onClick={() => {
@@ -194,11 +210,11 @@ const WorkspacePage: NextPage = () => {
                     document.dispatchEvent(e);
                   }}
                 >
-                  Create Project
+                  {store.locale.localized("Create Project")}
                 </PrimaryButton>
               </div>
               <div className="hidden md:block self-end overflow-hidden pt-8">
-                <Image src={emptyDashboard} alt="Empty Dashboard" />
+                <Image src={emptyDashboard} alt={store.locale.localized("Empty Dashboard")} />
               </div>
             </div>
           )

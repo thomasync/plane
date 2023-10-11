@@ -16,6 +16,9 @@ import { PlusIcon } from "@heroicons/react/24/outline";
 import { replaceUnderscoreIfSnakeCase } from "helpers/string.helper";
 // types
 import { ICurrentUserResponse, IIssue, IIssueViewProps, IState, UserAuth } from "types";
+// mobx
+import { RootStore } from "store/root";
+import { useMobxStore } from "lib/mobx/store-provider";
 
 type Props = {
   addIssueToGroup: () => void;
@@ -62,6 +65,7 @@ export const SingleBoard: React.FC<Props> = (props) => {
 
   const { displayFilters, groupedIssues } = viewProps;
 
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { cycleId, moduleId } = router.query;
 
@@ -248,7 +252,7 @@ export const SingleBoard: React.FC<Props> = (props) => {
                           }}
                         >
                           <PlusIcon className="h-4 w-4" />
-                          Add Issue
+                          {store.locale.localized("Add Issue")}
                         </button>
                       )
                     : !disableUserActions &&
@@ -260,7 +264,7 @@ export const SingleBoard: React.FC<Props> = (props) => {
                               className="flex items-center gap-2 font-medium text-custom-primary outline-none whitespace-nowrap"
                             >
                               <PlusIcon className="h-4 w-4" />
-                              Add Issue
+                              {store.locale.localized("Add Issue")}
                             </button>
                           }
                           position="left"
@@ -273,11 +277,11 @@ export const SingleBoard: React.FC<Props> = (props) => {
                               else onCreateClick();
                             }}
                           >
-                            Create new
+                            {store.locale.localized("Create new")}
                           </CustomMenu.MenuItem>
                           {openIssuesListModal && (
                             <CustomMenu.MenuItem onClick={openIssuesListModal}>
-                              Add an existing issue
+                              {store.locale.localized("Add an existing issue")}
                             </CustomMenu.MenuItem>
                           )}
                         </CustomMenu>

@@ -50,6 +50,9 @@ import {
 import { ROLE } from "constants/workspace";
 // helper
 import { truncateText } from "helpers/string.helper";
+// mobx
+import { useMobxStore } from "lib/mobx/store-provider";
+import { RootStore } from "store/root";
 
 const defaultValues: Partial<IProject> = {
   project_lead: null,
@@ -63,6 +66,7 @@ const MembersSettings: NextPage = () => {
 
   const { setToastAlert } = useToast();
 
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug, projectId } = router.query;
 
@@ -170,9 +174,9 @@ const MembersSettings: NextPage = () => {
         );
 
         setToastAlert({
-          title: "Success",
+          title: store.locale.localized("Success"),
           type: "success",
-          message: "Project updated successfully",
+          message: store.locale.localized("Project updated successfully"),
         });
       })
       .catch((err) => {
@@ -210,9 +214,9 @@ const MembersSettings: NextPage = () => {
         );
 
         setToastAlert({
-          title: "Success",
+          title: store.locale.localized("Success"),
           type: "success",
-          message: "Project updated successfully",
+          message: store.locale.localized("Project updated successfully"),
         });
       })
       .catch((err) => {
@@ -231,7 +235,7 @@ const MembersSettings: NextPage = () => {
             link={`/${workspaceSlug}/projects/${projectDetails?.id}/issues`}
             linkTruncate
           />
-          <BreadcrumbItem title="Members Settings" unshrinkTitle />
+          <BreadcrumbItem title={store.locale.localized("Members Settings")} unshrinkTitle />
         </Breadcrumbs>
       }
     >
@@ -271,8 +275,8 @@ const MembersSettings: NextPage = () => {
           }
           setToastAlert({
             type: "success",
-            message: "Member removed successfully",
-            title: "Success",
+            message: store.locale.localized("Member removed successfully"),
+            title: store.locale.localized("Success"),
           });
         }}
       />
@@ -289,12 +293,12 @@ const MembersSettings: NextPage = () => {
         </div>
         <section className={`pr-9 py-8 w-full overflow-y-auto`}>
           <div className="flex items-center py-3.5 border-b border-custom-border-200">
-            <h3 className="text-xl font-medium">Defaults</h3>
+            <h3 className="text-xl font-medium">{store.locale.localized("Defaults")}</h3>
           </div>
           <div className="flex flex-col gap-2 pb-4 w-full">
             <div className="flex items-center py-8 gap-4 w-full">
               <div className="flex flex-col gap-2 w-1/2">
-                <h4 className="text-sm">Project Lead</h4>
+                <h4 className="text-sm">{store.locale.localized("Project Lead")}</h4>
                 <div className="">
                   {projectDetails ? (
                     <Controller
@@ -319,7 +323,7 @@ const MembersSettings: NextPage = () => {
               </div>
 
               <div className="flex flex-col gap-2 w-1/2">
-                <h4 className="text-sm">Default Assignee</h4>
+                <h4 className="text-sm">{store.locale.localized("Default Assignee")}</h4>
                 <div className="">
                   {projectDetails ? (
                     <Controller
@@ -346,8 +350,10 @@ const MembersSettings: NextPage = () => {
           </div>
 
           <div className="flex items-center justify-between gap-4 py-3.5 border-b border-custom-border-200">
-            <h4 className="text-xl font-medium">Members</h4>
-            <PrimaryButton onClick={() => setInviteModal(true)}>Add Member</PrimaryButton>
+            <h4 className="text-xl font-medium">{store.locale.localized("Members")}</h4>
+            <PrimaryButton onClick={() => setInviteModal(true)}>
+              {store.locale.localized("Add Member")}
+            </PrimaryButton>
           </div>
           {!projectMembers || !projectInvitations ? (
             <Loader className="space-y-5">
@@ -449,9 +455,10 @@ const MembersSettings: NextPage = () => {
                               .catch(() => {
                                 setToastAlert({
                                   type: "error",
-                                  title: "Error!",
-                                  message:
-                                    "An error occurred while updating member role. Please try again.",
+                                  title: store.locale.localized("Error!"),
+                                  message: store.locale.localized(
+                                    "An error occurred while updating member role. Please try again."
+                                  ),
                                 });
                               });
                           }}
@@ -491,7 +498,9 @@ const MembersSettings: NextPage = () => {
 
                               <span>
                                 {" "}
-                                {member.memberId !== user?.id ? "Remove member" : "Leave project"}
+                                {member.memberId !== user?.id
+                                  ? store.locale.localized("Remove member")
+                                  : store.locale.localized("Leave project")}
                               </span>
                             </span>
                           </CustomMenu.MenuItem>

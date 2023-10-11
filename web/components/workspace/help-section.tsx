@@ -8,45 +8,46 @@ import { useMobxStore } from "lib/mobx/store-provider";
 import useOutsideClickDetector from "hooks/use-outside-click-detector";
 // icons
 import { Bolt, HelpOutlineOutlined, WestOutlined } from "@mui/icons-material";
-import { DiscordIcon } from "components/icons";
-import { FileText, Github, MessagesSquare } from "lucide-react";
-// assets
-import packageJson from "package.json";
-
-const helpOptions = [
-  {
-    name: "Documentation",
-    href: "https://docs.plane.so/",
-    Icon: FileText,
-  },
-  {
-    name: "Join our Discord",
-    href: "https://discord.com/invite/A92xrEGCge",
-    Icon: DiscordIcon,
-  },
-  {
-    name: "Report a bug",
-    href: "https://github.com/makeplane/plane/issues/new/choose",
-    Icon: Github,
-  },
-  {
-    name: "Chat with us",
-    href: null,
-    onClick: () => (window as any).$crisp.push(["do", "chat:show"]),
-    Icon: MessagesSquare,
-  },
-];
+import { ChatBubbleOvalLeftEllipsisIcon } from "@heroicons/react/24/outline";
+import { DocumentIcon, DiscordIcon, GithubIcon } from "components/icons";
+// mobx store
+import { useMobxStore } from "lib/mobx/store-provider";
+import { RootStore } from "store/root";
 
 export interface WorkspaceHelpSectionProps {
   setSidebarActive: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const WorkspaceHelpSection: React.FC<WorkspaceHelpSectionProps> = ({ setSidebarActive }) => {
-  const store: any = useMobxStore();
+  const store: RootStore = useMobxStore();
 
   const [isNeedHelpOpen, setIsNeedHelpOpen] = useState(false);
 
   const helpOptionsRef = useRef<HTMLDivElement | null>(null);
+
+  const helpOptions = [
+    {
+      name: store.locale.localized("Documentation"),
+      href: "https://docs.plane.so/",
+      Icon: DocumentIcon,
+    },
+    {
+      name: store.locale.localized("Join our Discord"),
+      href: "https://discord.com/invite/A92xrEGCge",
+      Icon: DiscordIcon,
+    },
+    {
+      name: store.locale.localized("Report a bug"),
+      href: "https://github.com/makeplane/plane/issues/new/choose",
+      Icon: GithubIcon,
+    },
+    {
+      name: store.locale.localized("Chat with us"),
+      href: null,
+      onClick: () => (window as any).$crisp.push(["do", "chat:show"]),
+      Icon: ChatBubbleOvalLeftEllipsisIcon,
+    },
+  ];
 
   useOutsideClickDetector(helpOptionsRef, () => setIsNeedHelpOpen(false));
 
@@ -59,7 +60,7 @@ export const WorkspaceHelpSection: React.FC<WorkspaceHelpSectionProps> = ({ setS
       >
         {!store?.theme?.sidebarCollapsed && (
           <div className="w-1/2 text-center cursor-default rounded-md px-2.5 py-1.5 font-medium outline-none text-sm bg-green-500/10 text-green-500">
-            Free Plan
+            {store.locale.localized("Free Plan")}
           </div>
         )}
         <div

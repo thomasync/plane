@@ -37,7 +37,7 @@ const MobxStoreInit = () => {
         store.theme.setTheme({ theme: { theme: currentTheme } });
       }
     }
-  }, [store?.theme, store?.user, setTheme]);
+  }, [store?.theme, store?.user, store.locale, setTheme]);
 
   useEffect(() => {
     // current user
@@ -45,7 +45,10 @@ const MobxStoreInit = () => {
 
     // current user settings
     if (store?.user?.currentUserSettings === null) store.user.setCurrentUserSettings();
-  }, [store?.user]);
+
+    // current locale
+    if (store?.locale?.locale === null) store.locale.setAutoLocale();
+  }, [store?.user, store?.locale]);
 
   return <></>;
 };

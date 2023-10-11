@@ -23,6 +23,9 @@ import { ICurrentUserResponse, IIssue, ISearchIssueResponse } from "types";
 import issuesService from "services/issues.service";
 // fetch keys
 import { SUB_ISSUES } from "constants/fetch-keys";
+// mobx
+import { RootStore } from "store/root";
+import { useMobxStore } from "lib/mobx/store-provider";
 
 export interface ISubIssuesRoot {
   parentIssue: IIssue;
@@ -40,6 +43,7 @@ export interface ISubIssuesRootLoadersHandler {
 }
 
 export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) => {
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug, projectId, peekIssue } = router.query as {
     workspaceSlug: string;
@@ -133,16 +137,16 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
         handleIssuesLoader({ key: "delete", issueId: issue?.id });
         setToastAlert({
           type: "success",
-          title: `Issue removed!`,
-          message: `Issue removed successfully.`,
+          title: store.locale.localized("Issue removed!"),
+          message: store.locale.localized("Issue removed successfully."),
         });
       })
       .catch(() => {
         handleIssuesLoader({ key: "delete", issueId: issue?.id });
         setToastAlert({
           type: "warning",
-          title: `Error!`,
-          message: `Error, Please try again later.`,
+          title: store.locale.localized("Error!"),
+          message: store.locale.localized("Error, Please try again later."),
         });
       });
   };
@@ -153,8 +157,8 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
     copyTextToClipboard(`${originURL}/${text}`).then(() => {
       setToastAlert({
         type: "success",
-        title: "Link Copied!",
-        message: "Issue link copied to clipboard.",
+        title: store.locale.localized("Success!"),
+        message: store.locale.localized("Issue link copied to clipboard."),
       });
     });
   };
@@ -168,7 +172,12 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
   return (
     <div className="w-full h-full space-y-2">
       {!issues && isLoading ? (
-        <div className="py-3 text-center text-sm  text-custom-text-300 font-medium">Loading...</div>
+        <div
+          className="py-3 text-center text-sm  text-custom-text-300 font-medium"
+          suppressHydrationWarning
+        >
+          {store.locale.localized("Loading...")}
+        </div>
       ) : (
         <>
           {issues && issues?.sub_issues && issues?.sub_issues?.length > 0 ? (
@@ -188,7 +197,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                       <ChevronRight width={14} strokeWidth={2} />
                     )}
                   </div>
-                  <div>Sub-issues</div>
+                  <div>{store.locale.localized("Sub-issues")}</div>
                   <div>({issues?.sub_issues?.length || 0})</div>
                 </div>
 
@@ -208,13 +217,13 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                       className="hover:bg-custom-background-80 transition-all cursor-pointer p-1.5 px-2 rounded border border-custom-border-100 shadow"
                       onClick={() => handleIssueCrudOperation("create", parentIssue?.id)}
                     >
-                      Add sub-issue
+                      {store.locale.localized("Add sub-issue")}
                     </div>
                     <div
                       className="hover:bg-custom-background-80 transition-all cursor-pointer p-1.5 px-2 rounded border border-custom-border-100 shadow"
                       onClick={() => handleIssueCrudOperation("existing", parentIssue?.id)}
                     >
-                      Add an existing issue
+                      {store.locale.localized("Add an existing issue")}
                     </div>
                   </div>
                 )}
@@ -243,7 +252,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                   label={
                     <>
                       <Plus className="h-3 w-3" />
-                      Add sub-issue
+                      {store.locale.localized("Add sub-issue")}
                     </>
                   }
                   buttonClassName="whitespace-nowrap"
@@ -257,7 +266,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                       handleIssueCrudOperation("create", parentIssue?.id);
                     }}
                   >
-                    Create new
+                    {store.locale.localized("Create new")}
                   </CustomMenu.MenuItem>
                   <CustomMenu.MenuItem
                     onClick={() => {
@@ -265,7 +274,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                       handleIssueCrudOperation("existing", parentIssue?.id);
                     }}
                   >
-                    Add an existing issue
+                    {store.locale.localized("Add an existing issue")}
                   </CustomMenu.MenuItem>
                 </CustomMenu>
               </div>
@@ -273,13 +282,15 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
           ) : (
             isEditable && (
               <div className="flex justify-between items-center">
-                <div className="text-xs py-2 text-custom-text-300 italic">No Sub-Issues yet</div>
+                <div className="text-xs py-2 text-custom-text-300 italic">
+                  {store.locale.localized("No sub-issues yet")}
+                </div>
                 <div>
                   <CustomMenu
                     label={
                       <>
                         <Plus className="h-3 w-3" />
-                        Add sub-issue
+                        {store.locale.localized("Add sub-issue")}
                       </>
                     }
                     buttonClassName="whitespace-nowrap"
@@ -293,7 +304,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                         handleIssueCrudOperation("create", parentIssue?.id);
                       }}
                     >
-                      Create new
+                      {store.locale.localized("Create new")}
                     </CustomMenu.MenuItem>
                     <CustomMenu.MenuItem
                       onClick={() => {
@@ -301,7 +312,7 @@ export const SubIssuesRoot: React.FC<ISubIssuesRoot> = ({ parentIssue, user }) =
                         handleIssueCrudOperation("existing", parentIssue?.id);
                       }}
                     >
-                      Add an existing issue
+                      {store.locale.localized("Add an existing issue")}
                     </CustomMenu.MenuItem>
                   </CustomMenu>
                 </div>

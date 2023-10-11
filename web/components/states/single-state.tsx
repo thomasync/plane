@@ -21,6 +21,9 @@ import { orderStateGroups } from "helpers/state.helper";
 import { ICurrentUserResponse, IState } from "types";
 // fetch-keys
 import { STATES_LIST } from "constants/fetch-keys";
+// mobx
+import { useMobxStore } from "lib/mobx/store-provider";
+import { RootStore } from "store/root";
 
 type Props = {
   index: number;
@@ -41,6 +44,7 @@ export const SingleState: React.FC<Props> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const store: RootStore = useMobxStore();
   const router = useRouter();
   const { workspaceSlug, projectId } = router.query;
 
@@ -187,7 +191,9 @@ export const SingleState: React.FC<Props> = ({
 
         <div className=" items-center gap-2.5 hidden group-hover:flex">
           {state.default ? (
-            <span className="text-xs text-custom-text-200">Default</span>
+            <span className="text-xs text-custom-text-200">
+              {store.locale.localized("Default")}
+            </span>
           ) : (
             <button
               type="button"
@@ -195,7 +201,7 @@ export const SingleState: React.FC<Props> = ({
               onClick={handleMakeDefault}
               disabled={isSubmitting}
             >
-              Mark as default
+              {store.locale.localized("Mark as default")}
             </button>
           )}
           <button
@@ -215,7 +221,7 @@ export const SingleState: React.FC<Props> = ({
             disabled={state.default || groupLength === 1}
           >
             {state.default ? (
-              <Tooltip tooltipContent="Cannot delete the default state.">
+              <Tooltip tooltipContent={store.locale.localized("Cannot delete the default state.")}>
                 <X
                   className={`h-4 w-4 ${
                     groupLength < 1 ? "text-custom-sidebar-text-400" : "text-red-500"
@@ -223,7 +229,7 @@ export const SingleState: React.FC<Props> = ({
                 />
               </Tooltip>
             ) : groupLength === 1 ? (
-              <Tooltip tooltipContent="Cannot have an empty group.">
+              <Tooltip tooltipContent={store.locale.localized("Cannot have an empty group.")}>
                 <X
                   className={`h-4 w-4 ${
                     groupLength < 1 ? "text-custom-sidebar-text-400" : "text-red-500"
