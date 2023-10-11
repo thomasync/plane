@@ -14,4 +14,9 @@ export const LOCALES = [
     icon: "🇫🇷",
     value: "fr_FR",
   },
+  {
+    label: "Português",
+    icon: "🇧🇷",
+    value: "pt_BR",
+  },
 ];
